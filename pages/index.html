@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>首页</title>
+    <link rel="stylesheet" href="../layui-2.6.8/css/layui.css">
+    <script src="../layui-2.6.8/layui.js"></script>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+        <div class="layui-logo layui-hide-xs layui-bg-cyan">文档&nbsp;&nbsp;V1.0</div>
+        <!-- 头部区域（可配合layui 已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <!-- 移动端显示 -->
+            <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm">
+                <i class="layui-icon layui-icon-spread-left"></i>
+            </li>
+
+        </ul>
+
+    <div class="layui-side">
+        <div class="layui-side layui-bg-black">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree">
+                <li class="layui-nav-item layui-nav-itemed ">
+                    <a>module1</a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick="turn('./module1/page1.html')">part 1</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <iframe id="content" src="" frameborder="0" style="width: 100%; height: 100%; border-radius: 2px;"></iframe>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        底部固定区域
+    </div>
+</div>
+</body>
+</html>
+<script>
+    function turn(url) {
+        layui.$('#content').attr('src',url);
+    }
+</script>
