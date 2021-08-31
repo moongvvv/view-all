@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>Stack</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">ArrayStack</h2>
+    <div class="layui-colla-content layui-show">
+<pre><code class="language-java">
+    /**
+     * 每次遍历把未排序的序列中的max沉底
+     */
+    public int[] bubbleSort(int[] arr){
+        for (int i = 0; i &lt; arr.length-1; i++) {
+            for (int j = 0; j &lt; arr.length-i-1; j++) {
+                if (arr[j] &gt; arr[j+1]) swap(arr, j, j+1);
+            }
+        }
+        return arr;
+    }
+
+    /**
+     * 每次遍历找出未排序里面的最小值
+     */
+    public int[] selectSort(int[] arr){
+        for (int i = 0; i &lt; arr.length-1; i++) {
+            int minIndex = i;
+            for (int j = i+1; j &lt; arr.length; j++) {
+                if (arr[j] &lt; arr[minIndex]) minIndex = j;
+            }
+            swap(arr, i, minIndex);
+        }
+        return arr;
+    }
+
+    /**
+     * 遍历N-1次，过程就像扑克牌插牌，依次把牌插到前面已经排过序的牌中
+     */
+    public int[] insertSort(int[] arr, int start, int gap){
+        for (int i = start+gap; i &lt; arr.length ; i = i+gap) {
+            for (int j = i-gap; j &gt;= 0 ; j=j-gap) {
+                if (arr[j] &gt; arr[j+gap]) {
+                    swap(arr, j, j+gap);
+                }else {
+                    break;
+                }
+            }
+        }
+        return arr;
+    }
+
+    /**
+     * 首次突破N^2的算法，算法关键就是缩小增量gap，按gap分组进行插排
+     */
+    public int[] shellSort(int[] arr){
+        for (int gap = arr.length/2; gap &gt;= 1; gap = gap/2) {
+            for (int i = 0; i &lt; gap; i++) {
+                //这里使用插排
+                insertSort(arr,i,gap);
+            }
+        }
+        return arr;
+    }
+
+    /**
+     * 需要额外空间
+     */
+    public int[] mergeSort(int[] arr){
+        this.mergeSort(arr, new int[arr.length], 0, arr.length-1);
+        return arr;
+    }
+
+    private void mergeSort(int[] arr, int[] tmp, int start, int end){
+        if (start &gt;= end) return;
+        int mid = (start+end)/2;
+        mergeSort(arr,tmp,start,mid);
+        mergeSort(arr,tmp, mid+1, end);
+
+        // do merge
+        int lPos = start;
+        int lEnd = mid;
+        int rPos = mid+1;
+        int rEnd = end;
+        int tmpSize = 0;
+        while (lPos &lt;= lEnd &amp;&amp; rPos &lt;= rEnd){
+            if (arr[lPos] &lt; arr[rPos]) tmp[tmpSize++] = arr[lPos++];
+            else tmp[tmpSize++] = arr[rPos++];
+        }
+        while (lPos &lt;= lEnd) tmp[tmpSize++] = arr[lPos++];
+        while (rPos &lt;= rEnd) tmp[tmpSize++] = arr[rPos++];
+        for (int i = 0; i &lt; tmpSize; i++) {
+            arr[start++] = tmp[i];
+        }
+
+    }
+
+    public int[] quickSort(int[] arr){
+        quickSort(arr, 0, arr.length-1);
+        return arr;
+    }
+
+    private void quickSort(int[] arr, int i, int j){
+        if (i&gt;=j) return;
+        int base = arr[i];
+        int lPos = i;
+        int rPos = j;
+        while (lPos != rPos){
+            if (arr[rPos] &gt;= base) {
+                rPos--;
+                continue;
+            }
+            if (arr[lPos] &lt;= base){
+                lPos++;
+                continue;
+            }
+            swap(arr, lPos,rPos);
+        }
+        swap(arr, i, lPos);
+
+        quickSort(arr, i,lPos-1);
+        quickSort(arr, lPos+1,j);
+    }
+
+    public int[] heapSort(int[] arr){
+        for (int i = arr.length/2-1; i &gt;=0 ; i--) {
+            heapDown(arr,i, arr.length);
+        }
+        int size = arr.length;
+        for (int i = arr.length-1; i &gt; 0 ; i--) {
+            swap(arr, i, 0);
+            heapDown(arr,0,--size);
+        }
+        return arr;
+    }
+
+    private void heapDown(int[] arr, int index, int size){
+        int base = arr[index];
+        int i = index;
+        for (; i &lt; size; ) {
+            if (2*i+1 &gt;= size) break;
+            int child;
+            if (2*i+2 &lt; size){
+                child = arr[2*i+1] &lt; arr[2*i+2] ? 2*i+2 : 2*i+1;
+            }else {
+                child = 2*i+1;
+            }
+            if (arr[child] &gt; base){
+                swap(arr, i, child);
+                i = child;
+            }else {
+                break;
+            }
+        }
+        arr[i] = base;
+    }
+
+    public int[] countSort(int[] arr, int max){
+        int[] bucket = new int[max+1];
+        for (int i = 0; i &lt; arr.length; i++) {
+            bucket[arr[i]]++;
+        }
+        int idx = 0;
+        for (int i = 0; i &lt; bucket.length; i++) {
+            while (bucket[i] &gt; 0){
+                arr[idx++] = i;
+                bucket[i]--;
+            }
+        }
+        return arr;
+    }
+
+    public int[] bucketSort(int[] arr){
+        ArrayList&lt;Integer&gt;[] buckets = new ArrayList[10];
+        for (int i = 0; i &lt; arr.length; i++) {
+            int index = (arr[i]/10) % 10;
+            if (buckets[index] == null) buckets[index] = new ArrayList&lt;&gt;();
+            buckets[index].add(arr[i]);
+        }
+        int idx = 0;
+        for (int i = 0; i &lt; buckets.length; i++) {
+            if (buckets[i] == null) continue;
+            buckets[i].sort((o1, o2) -&gt; o1-o2);
+            for (int j = 0; j &lt; buckets[i].size(); j++) {
+                arr[idx++]= buckets[i].get(j);
+            }
+        }
+        return arr;
+    }
+
+    public int[] radixSort(int[] arr, int maxLength){
+        ArrayList&lt;Integer&gt;[] bucket = new ArrayList[10];
+        int div = 1;
+        for (int i = 0; i &lt; maxLength; i++, div=div*10) {
+            for (int j = 0; j &lt; arr.length; j++) {
+                int index = ((arr[j]/div) % 10);
+                if (bucket[index]==null) bucket[index] = new ArrayList();
+                bucket[index].add(arr[j]);
+            }
+            int idx = 0;
+            for (int j = 0; j &lt; bucket.length; j++) {
+                if (bucket[j] == null) continue;
+                for (int k = 0; k &lt; bucket[j].size(); k++) {
+                    arr[idx++] = bucket[j].get(k);
+                }
+                bucket[j].clear();
+            }
+        }
+        return arr;
+    }
+
+    /**
+     * 外部排序算法
+     * 主要优化思路有两个
+     * 多路归并，用heap来找k路中最小值，deleteMin之后该路补进
+     * 置换选择减少子串数量，思路还是用heap，比上次出堆的元素小的值全存起来留到下次重构堆
+     */
+    public void outsideSort() {
+
+    }
+</code></pre>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

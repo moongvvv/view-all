@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>Queue</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">ArrayQueue</h2>
+    <div class="layui-colla-content layui-show">
+<pre><code class="language-java">
+public boolean enqueue(E e){
+    if (size == elements.length) return false;
+    elements[putIdx++] = e;
+    if (putIdx==elements.length) putIdx = 0;
+    size++;
+    return true;
+}
+
+public E dequeue(){
+    if (size == 0) return null;
+    E e = (E) elements[takeIdx++];
+    if (takeIdx==elements.length) takeIdx = 0;
+    size--;
+    return e;
+}
+</code></pre>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

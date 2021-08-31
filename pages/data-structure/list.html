@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>List</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">ArrayList</h2>
+    <div class="layui-colla-content layui-show">
+<pre><code class="language-java">
+public Object get(int index){
+    checkRange(index);
+    return elements[index];
+}
+
+public void add(Object o){
+    if (size == elements.length) grow();
+    elements[size++]=o;
+}
+
+public void add(Object o, int index){
+    checkRange(index);
+    if (size == elements.length) grow();
+    for (int i=size-1; i&gt;index; i--) elements[i + 1] = elements[i];
+    elements[index]=o;
+    size++;
+}
+
+public void remove(int index){
+    checkRange(index);
+    for (int i=index+1; i&lt;size; i++) elements[i - 1] = elements[i];
+    elements[size-1]=null;
+    size--;
+}
+
+private void checkRange(int index){
+    if (index &lt; 0 || index &gt;= size) throw new IndexOutOfBoundsException();
+}
+</code></pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">LinkedList</h2>
+    <div class="layui-colla-content layui-show">
+<script>
+    layui.use('code', function(){ //加载code模块
+        layui.code(); //引用code方法
+    });
+</script>
+<pre><code class="language-java">
+private class Node{
+    Node before;
+    Node next;
+    Object o;
+    public Node(Node before,Node next,Object o){
+        this.before = before;
+        this.next = next;
+        this.o = o;
+    }
+}
+
+private Node head;
+private Node tail;
+private int size;
+
+public void add(Object o){
+    Node node = new Node(tail, null, o);
+    if (head == null){
+        head = node;
+    } else {
+        tail.next = node;
+    }
+    tail = node;
+    size++;
+}
+
+public void add(int index, Object o){
+    if (index == size){
+        add(o);
+    }else {
+        Node next = getNode(index);
+        Node before = next.before;
+        Node node = new Node(before,next,o);
+
+        if (before == null){
+            head = node;
+        }else {
+            before.next = node;
+        }
+        next.before = node;
+        size++;
+    }
+}
+
+public void remove(int index){
+    removeNode(getNode(index));
+}
+
+private void removeNode(Node node){
+    Node before = node.before;
+    Node next = node.next;
+
+    if (before == null){
+        head = next;
+    }else {
+        before.next = next;
+    }
+    if (next == null){
+        tail = before;
+    }else {
+        next.before = before;
+    }
+
+    node.before=node.next=null;
+    node.o=null;
+    size--;
+}
+
+public Object get(int index){
+    return getNode(index).o;
+}
+
+private Node getNode(int index){
+    checkRange(index);
+    if (index < size/2){
+        Node node = head;
+        for (int i = 0; i < index; i++) {
+            node = node.next;
+        }
+        return node;
+    }else {
+        Node node = tail;
+        for (int i = size-1; i > index ; i++) {
+            node = node.before;
+        }
+        return node;
+    }
+}
+
+private void checkRange(int index){
+    if (index < 0 || index >= size) {
+        throw new IndexOutOfBoundsException();
+    }
+}
+</code></pre>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

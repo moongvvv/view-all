@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>Map</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">自己写一个HashMap</h2>
+    <div class="layui-colla-content">
+<pre><code class="language-java">
+    public void put(K key,V value){
+        // 找到hash值对应的tableIndex，按位与可直接取模 等同于 hash(key) % table.length
+        int tableIndex = (table.length-1) &amp; hash(key);
+        // 当前槽是null，创建一个新链头
+        if (table[tableIndex] == null){
+            table[tableIndex] = createNode(key,value);
+            if (++size &gt;= table.length) reSize();
+            return;
+        }
+
+        // 用链表解决hash冲突
+        Node&lt;K,V&gt; node = table[tableIndex];
+        while (true){
+            // equals说明是重复键，更新一下值就行
+            if (node.key.equals(key)){
+                node.value = value;
+                return;
+            }
+            // 遍历完了没发现重复，就插入，然后返回
+            if (node.next == null){
+                node.next = createNode(key,value);
+                if (++size &gt;= table.length) reSize();
+                return;
+            }
+            node = node.next;
+        }
+    }
+
+    /**
+     * 两个问题，死循环，丢失元素
+     * 头插法
+     */
+    private void reSize() {
+        Node&lt;K,V&gt;[] newTable = new Node[2 * table.length];
+        for (Node&lt;K, V&gt; node : table) {
+            while (node != null){
+                // 这里切换线程导致丢失元素
+                Node&lt;K,V&gt; tmp = node.next;
+                // 这里切换线程导致死循环
+                int index = hash(node.key) &amp; (newTable.length-1);
+                node.next = newTable[index];
+                newTable[index] = node;
+                node = tmp;
+            }
+        }
+        table = newTable;
+    }
+
+    public void remove(K key){
+        int tableIndex = (table.length-1) &amp; hash(key);
+        Node&lt;K,V&gt; node = table[tableIndex];
+        Node&lt;K,V&gt; prev = null;
+        while (node != null){
+            if (node.key.equals(key)){
+                if (prev == null){
+                    table[tableIndex] = node.next;
+                }else {
+                    prev.next = node.next;
+                }
+                afterRemove(node);
+                return;
+            }
+            prev = node;
+            node = node.next;
+        }
+    }
+</code></pre>
+    </div>
+  </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">1.7与1.8的对比</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+1. hash的优化：使用高低16位的^运算
+2. 扩容的优化：先拆分成高低位两条链表，然后转移；不再使用尾插法
+3. 引入了红黑树
+</pre>
+        </div>
+    </div>
+</div>
+</body>
+</html>

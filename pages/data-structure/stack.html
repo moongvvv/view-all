@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>Stack</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">ArrayStack</h2>
+    <div class="layui-colla-content layui-show">
+<pre><code class="language-java">
+public void push(E e){
+    if (size == elements.length) grow();
+    elements[size++] = e;
+}
+
+public E pop(){
+    E e = peek();
+    elements[--size] = null;
+    return e;
+}
+
+public E peek(){
+    return (E) elements[size-1];
+}
+</code></pre>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

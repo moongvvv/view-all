@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>Heap</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">Heap</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+堆的操作主要就是up和down
+每次插入，插到最后一位，然后用up平衡
+删除时，用最后一位先临时填充，再用down平衡
+<code class="language-java">public MyHeap(E ... e){
+        elements = e;
+        size = elements.length;
+        for (int i = size/2 -1; i &gt;= 0; i--) {
+            down(i);
+        }
+    }
+
+    public void insert(E e){
+        if (size == elements.length){
+            grow();
+        }
+        elements[size]=e;
+        up(size++);
+    }
+
+    public void remove(int index){
+        elements[index] = elements[size-1];
+        down(index);
+        elements[size--] = null;
+    }
+
+    private void up(int index){
+        E e = (E) elements[index];
+        int i = index;
+        for (; i &gt; 0; i = (i-1)/2) {
+            if (((E)elements[(i-1)/2]).compareTo(e) &gt; 0){
+                elements[i] = elements[(i-1)/2];
+            }else {
+                break;
+            }
+        }
+        elements[i] = e;
+    }
+
+    private void down(int index){
+        E e = (E) elements[index];
+        int i = index;
+        for(;i&lt;size;){
+            if (2*i+1 &gt;=size){
+                break;
+            }
+            int child;
+            if (2*i+2 &gt;=size){
+                child = 2*i+1;
+            }else {
+                child = ((E)elements[2*i+1]).compareTo((E)elements[2*i+2]) &lt; 0 ? 2*i+1 : 2*i+2;
+            }
+
+            if (((E)elements[child]).compareTo(e) &lt; 0){
+                elements[i] = elements[child];
+                i = child;
+            }else {
+                break;
+            }
+        }
+        elements[i] = e;
+    }
+</code></pre>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
