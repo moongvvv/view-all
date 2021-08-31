@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>计算机网络体系结构</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">分层模型</h2>
+    <div class="layui-colla-content layui-show">
+      <img src="https://gitee.com/mgtl/xgzz/raw/master/network-of-computer/img/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png">
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">网络层</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+IP地址分类
+
+<img src="https://gitee.com/mgtl/xgzz/raw/master/network-of-computer/img/IP%E5%9C%B0%E5%9D%80%E5%88%86%E7%B1%BB.png">
+划分子网
+借用一部分主机号用作子网号
+子网掩码:网络号和子网号全使用1,与ip地址做逻辑与运算(true&&true=true)
+
+无分类地址
+斜线记法,例如127.14.35.7/20,这里的20即网络前缀占用的位数,后12位是实际主机号
+</pre>
+
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">传输层</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+  <span style="color: red; ">UDP和TCP对比</span>
+  TCP面向连接(三报文握手,四报文挥手),提供可靠交付(滑动窗口,停止等待,超时重传...),面向字节流(流量控制,拥塞控制),1对1全双工通信
+  UDP无连接,面向报文(不拆分报文直接添加首部),支持多对多
+
+  <span style="color: red; ">三次握手</span>
+  过程：
+  客户发送连接请求,SYN=1,初始化序号seq=x.
+  服务器收到请求,向客户发送确认报文,SYN=1,ACK=1,acknowledge number=x+1,也初始化序列号seq=y.
+  客户端收到请求后,返回确认,ACK=1,acknowledge number=y+1,seq=x+1.
+  服务端收到确认后,连接建立
+  原因：
+  建立连接的前提是,双方都知道自己收发功能正常.
+  - 第一次请求,服务端知道客户发送正常,自己接收正常.
+  - 第二次请求,客户端知道自己收发正常,服务端收发正常.
+  - 第三次请求,服务端知道自己发送正常,客户接收正常.
+  防止失效的超时建立连接请求,如果少了第三次确认,客户端无法告知服务器这是旧seq中断本次连接
+  <img src="https://gitee.com/mgtl/xgzz/raw/master/network-of-computer/img/%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5.png">
+
+  <span style="color: red; ">四次挥手</span>
+  过程：
+  1. 客户发送释放连接请求,FIN=1,seq=u.
+  2. 服务器发出确认,ACK=1,acknowledge number=u+1.至此客户不能再发送报文,等待服务器发送剩余报文.
+  3. 服务器发完报文后,发送释放连接请求,FIN=1.
+  4. 客户端收到后发出确认,并进入TIME-WAIT状态,等待2MSL时间释放连接.
+  5. 服务器收到确认后,释放连接.
+  为什么要四次挥手:
+  任何一方需要释放连接时,需要发送FIN请求,等待对方确认后,才能进入半关闭状态(不能发送报文).等另一方也发送FIN请求,自己确认后,才可以关闭TCP连接.
+  为什么要等待2MSL:
+  避免自己发出的ACK对方没收到,如果ACK丢失了,服务器会重传FIN,这时客户可以再次ACK.
+  <img src="https://gitee.com/mgtl/xgzz/raw/master/network-of-computer/img/%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B%E9%87%8A%E6%94%BE%E8%BF%9E%E6%8E%A5.png">
+
+  <span style="color: red; ">TCP如何保证可靠传输</span>
+  超时重传：发送方在发送完数据一定时间后没有收到ACK,就会重新发送刚才的数据
+  流量控制(滑动窗口)：发送方根据接收到的ACK报文中的窗口大小控制自己的发送速度
+  拥塞控制： 慢开始,拥塞避免 快重传,快恢复
+  - 最开始窗口大小cwnd=1,每次收到ACK就翻倍;
+  - 设置一个ssthresh阀门,cwnd超过阀门就启动拥塞避免,每经过一个往返时间RTT就+1;
+  - 有时重传并不是因为发生拥塞,只是个别报文缺失为了避免TCP误判,接收方即使收到失序的报文段也要发送ACK(1,2号到达3号缺失,后面收到4,5,6号报文都发送2号的ACK,这样发送方就知道3号丢失,会立刻重传);
+  - 快重传后,快恢复;令ssthresh=cwnd/2,cwnd=ssthresh,这时直接进入拥塞避免;
+  <img src="https://gitee.com/mgtl/xgzz/raw/master/network-of-computer/img/TCP%E7%9A%84%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6.png">
+</pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">应用层</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+HTTP：
+  请求方式：
+    GET,请求参数跟在路径后,无content,受限于URL长度
+    PUT和PATCH,用于资源的更新,且应实现为幂等,PUT用于更新资源的全部信息,PATCH用于更新局部字段
+    POST,参数在content，POST不是幂等的,用于创建新的数据
+    DELETE,删除资源
+  特点： 无连接（每次处理一个请求），无状态（没有记忆能力）
+  HTTP1.1：新增长连接功能，可以不用断开TCP连接
+  <span style="color: red; ">HTTP2.0</span>：基于二进制流，压缩header，多路复用（浏览器会限制单域名的最大请求数量，通过二进制分成帧可以共享TCP连接）,可以主动推送给客户端
+</pre>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
