@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>经典同步问题</legend>
+</fieldset>
+<div class="layui-collapse">
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">哲学家进餐问题</h2>
+    <div class="layui-colla-content layui-show">
+<pre><code class="language-java">
+ReentrantLock lock = new ReentrantLock();
+Condition condition = lock.newCondition();
+String[] state = new String[4];
+
+public void eat(int i) throws InterruptedException {
+    lock.lock();
+    try {
+        state[i] = "hungry";
+        while (state[left(i)].equals("eating") || state[right(i)].equals("eating")) condition.await();
+        state[i] = "eating";
+    }finally {
+        lock.unlock();
+    }
+
+    TimeUnit.SECONDS.sleep(3);// eating
+
+    lock.lock();
+    try {
+        state[i] = "thinking";
+        condition.signalAll();// sign other
+    }finally {
+        lock.unlock();
+    }
+}
+</code></pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">生产者消费者</h2>
+    <div class="layui-colla-content layui-show">
+<pre><code class="language-java">
+ReentrantLock lock = new ReentrantLock();
+Condition notFull = lock.newCondition();
+Condition notEmpty = lock.newCondition();
+Object[] elems = new Object[10];
+int size,takeIndex,putIndex;
+
+public void put(Object o) throws InterruptedException {
+  lock.lock();
+  try {
+      if (elems.length == size) notFull.await();
+      elems[putIndex++] = o;
+      size++;
+      if (putIndex == elems.length) putIndex = 0;
+
+      notEmpty.signal();
+  }finally {
+      lock.unlock();
+  }
+}
+
+public Object take() throws InterruptedException {
+  lock.lock();
+  try {
+      if (size == 0) notEmpty.await();
+      Object o = elems[takeIndex++];
+      size--;
+      if (takeIndex == elems.length) takeIndex = 0;
+
+      notFull.signal();
+      return o;
+  }finally {
+      lock.unlock();
+  }
+}
+</code></pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">读写者问题</h2>
+    <div class="layui-colla-content layui-show">
+<pre><code class="language-java">
+StampedLock lock = new StampedLock();
+int a;
+
+void add(){
+    long stamp = lock.writeLock();
+    try {
+        a++;
+    }finally {
+        lock.unlockWrite(stamp);
+    }
+}
+
+int get(){
+    int rs;
+    long stamp = lock.tryOptimisticRead();
+    rs = a;
+    if (stamp != 0L && lock.validate(stamp)) return rs;
+
+    stamp = lock.readLock();
+    try {
+        rs = a;
+        return rs;
+    }finally {
+        lock.unlockRead(stamp);
+    }
+}
+</code></pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

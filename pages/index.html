@@ -24,9 +24,14 @@
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree">
                 <li class="layui-nav-item layui-nav-itemed ">
-                    <a>module1</a>
+                    <a>操作系统</a>
                     <dl class="layui-nav-child">
-                        <dd><a onclick="turn('./module1/page1.html')">part 1</a></dd>
+                        <dd><a onclick="turn('./operating-system/process_thread.html')">进程与线程</a></dd>
+                        <dd><a onclick="turn('./operating-system/process_dispatch.html')">进程调度</a></dd>
+                        <dd><a onclick="turn('./operating-system/process_communication.html')">进程通信</a></dd>
+                        <dd><a onclick="turn('./operating-system/process_synchronization.html')">进程同步</a></dd>
+                        <dd><a onclick="turn('./operating-system/thread_deadlock.html')">死锁</a></dd>
+                        <dd><a onclick="turn('./operating-system/memory.html')">内存分配与管理</a></dd>
                     </dl>
                 </li>
             </ul>
@@ -34,7 +39,7 @@
     </div>
 
     <div class="layui-body">
-        <iframe id="content" src="" frameborder="0" style="width: 100%; height: 100%; border-radius: 2px;"></iframe>
+        <iframe id="content" src="module/template.html" frameborder="0" style="width: 100%; height: 100%; border-radius: 2px;"></iframe>
     </div>
 
     <div class="layui-footer">

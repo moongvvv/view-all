@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>死锁</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">死锁的四个必要条件</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+资源互斥
+占有和等待.已经得到资源的进程可以请求新的资源.
+不可抢占.不能强制抢占已分配的资源,只能被占有它的进程释放.
+环路等待.有两个及以上的进程组成环路,相互等待下一个进程释放的资源.
+</pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">死锁避免(银行家算法)</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+总需求量max`[i][j]`线程i对于资源j的最大需求
+已分配allocation`[i][j]`,线程i已经得到资源j的数量
+还需要need`[i][j]`,线程i还需要资源j的数量
+系统剩余available[j], 系统剩余资源j的数量
+
+银行家算法的核心:
+
+1. 寻找need[i]所需资源小于available的线程T~i~
+2. 回收T~i~的资源
+3. 重复上述两步直至全部资源回收完毕.
+</pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">jps,jstack检测死锁</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+  先写两个死锁的线程，分别持有lock1和lock2，再尝试占用对方的锁
+  <code class="language-java">
+Object lock1 = new Object();
+Object lock2 = new Object();
+Thread thread1 = new Thread(() -> {
+    synchronized (lock1) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        synchronized (lock2) {
+
+        }
+    }
+});
+Thread thread2 = new Thread(() -> {
+    synchronized (lock2) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        synchronized (lock1) {
+
+        }
+    }
+});
+</code>
+jps查看java进程，jstack查看线程栈，出现如下信息：
+
+Found one Java-level deadlock:
+=============================
+"deadlock1":
+  waiting to lock monitor 0x00007f42c4008f00 (object 0x0000000717151598, a java.lang.Object),
+  which is held by "deadlock2"
+"deadlock2":
+  waiting to lock monitor 0x00007f4294003500 (object 0x0000000717151588, a java.lang.Object),
+  which is held by "deadlock1"
+
+Java stack information for the threads listed above:
+===================================================
+"deadlock1":
+        at com.gzz.concurrent.DeadLock.lambda$main$0(DeadLock.java:18)
+        - waiting to lock <0x0000000717151598> (a java.lang.Object)
+        - locked <0x0000000717151588> (a java.lang.Object)
+        at com.gzz.concurrent.DeadLock$$Lambda$14/0x0000000800065840.run(Unknown Source)
+        at java.lang.Thread.run(java.base@11/Thread.java:834)
+"deadlock2":
+        at com.gzz.concurrent.DeadLock.lambda$main$1(DeadLock.java:30)
+        - waiting to lock <0x0000000717151588> (a java.lang.Object)
+        - locked <0x0000000717151598> (a java.lang.Object)
+        at com.gzz.concurrent.DeadLock$$Lambda$15/0x0000000800065c40.run(Unknown Source)
+        at java.lang.Thread.run(java.base@11/Thread.java:834)
+
+Found 1 deadlock.
+</pre>
+    </div>
+  </div>
+
+
+
+</div>
+</body>
+</html>

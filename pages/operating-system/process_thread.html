@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>进程与线程</legend>
+</fieldset>
+<div class="layui-collapse">
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">概念</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+进程：对程序运行状态的反映。进程=程序+执行状态。同一个程序运行多次对应不同的进程。需要内存(保存代码和数据)和CPU资源(执行指令)。
+线程：类似进程的一类实体,是进程的一部分,描述指令流执行状态;是CPU调度的基本单位；<span style="color: red; ">共享相同的地址空间</span>.
+
+<span style="color: red; font-weight: bolder">进程和线程的对比</span>
+- 进程是资源分配的基本单位，线程是CPU调度的基本单位。
+- 线程开销小，切换时代价小。
+- 线程之间共享内存，通信方便。
+</pre>
+    </div>
+  </div>
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">进程的状态流转</h2>
+    <div class="layui-colla-content">
+      <img src="https://gitee.com/mgtl/xgzz/raw/master/operating-system/img/%E8%BF%9B%E7%A8%8B%E4%B8%89%E7%8A%B6%E6%80%81.png"  alt=""/>
+    </div>
+  </div>
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">用户态和内核态线程</h2>
+    <div class="layui-colla-content layui-show">
+<h5><span style="color: red; font-weight: bolder">主要区别在于由谁创建管理线程（应用层还是操作系统）</span></h5>
+<pre>
+  用户态:由应用自己实现并管理线程.
+    可用于不支持线程的操作系统.
+    同一进程内用户态线程切换速度快.
+    允许定制线程调度算法.
+  内核态:由内核通过系统调用实现的线程机制,由内核完成线程的创建,终止和管理.
+    一个线程阻塞时,不影响其他线程.
+    开销更大.
+  <img src="https://gitee.com/mgtl/xgzz/raw/master/operating-system/img/%E7%94%A8%E6%88%B7%E6%80%81%E7%BA%BF%E7%A8%8B%E5%92%8C%E5%86%85%E6%A0%B8%E6%80%81%E7%BA%BF%E7%A8%8B.jpg">
+</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>

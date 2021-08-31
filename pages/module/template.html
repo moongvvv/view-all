@@ -5,32 +5,37 @@
     <title>Title</title>
     <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
     <script src="../../layui-2.6.8/layui.js"></script>
+
+    <script src="../../highlight/highlight.min.js"></script>
+    <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+    <script>hljs.highlightAll();</script>
 </head>
 <body>
 <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
-    <legend>常规折叠面板</legend>
+    <legend>模板</legend>
 </fieldset>
 <div class="layui-collapse">
+
     <div class="layui-colla-item">
         <h2 class="layui-colla-title">图片</h2>
         <div class="layui-colla-content layui-show">
             <img src="https://gitee.com/mgtl/xgzz/raw/master/java/img/AQS%E6%A8%A1%E5%9E%8B.png"  alt=""/>
         </div>
     </div>
+
     <div class="layui-colla-item">
         <h2 class="layui-colla-title">插入代码</h2>
         <div class="layui-colla-content layui-show">
-            <script>
-                layui.use('code', function(){ //加载code模块
-                    layui.code(); //引用code方法
-                });
-            </script>
-            <pre class="layui-code" lay-skin="notepad">
+            <pre>
+<code class="language-java">
+// 注释
 String a = "123";
+a="345";
+</code>
             </pre>
-
         </div>
     </div>
+
 </div>
 </body>
 </html>

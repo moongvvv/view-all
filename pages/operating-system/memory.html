@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>内存分配与管理</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">存储方式</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+  段式存储
+  每个段都是独立空间,可以独立增长或缩小
+  访问地址 = 段号 + 段内偏移
+
+  页式存储
+  帧: 物理地址划分成大小相同的基本分配单元
+  页: 逻辑地址也划分成相同大小的基本分配单元
+  MMU: 页到帧的转换,逻辑地址转化为物理地址
+  页表： 相当于索引，通过页表查询对应的物理地址
+    页表过大的优化（多级页表，反置页表）
+  <img src="https://gitee.com/mgtl/xgzz/raw/master/operating-system/img/%E9%A1%B5%E5%BC%8F%E5%AD%98%E5%82%A8%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80%E8%AE%A1%E7%AE%97.png">
+
+  段页式
+  结合了段和页的优势,通过段表和页表的映射
+  <img src="https://gitee.com/mgtl/xgzz/raw/master/operating-system/img/%E6%AE%B5%E9%A1%B5%E5%BC%8F.png">
+</pre>
+    </div>
+  </div>
+
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">虚拟内存</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+  把当前不用的程序放到内存外，要用时再加载（<span style="color: red">缺页中断</span> ）
+
+  <span style="color: red; ">局部性原理</span>
+  时间局部性: 指令或数据,如果被执行或访问,很可能在很短时间内会再次使用
+  空间局部性:所要使用的数据或者指令可能集中在一块区域
+
+  <span style="color: red">缺页置换算法</span>
+  最优置换 : 未来最长时间不会被访问
+  理想情况,实际无法实现,因为无法知道下次访问的时间
+FIFO置换 : 内存中留存时间最长的页面进行置换
+  维护一个链表,缺页时置换链头
+  实现简单,但是留存时间长的页面可能是经常访问的
+  有belady现象(分配的物理页增加,由于特殊的访问序列,缺页次数反而升高)
+
+最近最久未使用算法(LRU): 选择最长时间没有被引用的页面进行置换
+  理论可实现,但是代价大
+    用链表,每次访问时,把对应页节点移到队首;置换时,移除尾部
+    用栈,访问时压栈并删除之前的重复项;置换时,移除栈底
+    最大堆?
+时钟置换算法
+  fifo的优化版
+  环形链表,如果访问位是1跳过并置位0(表示重新开始计时),一直找到访问位=0,即可替换的页
+最不常用算法(LFU): 置换最少访问次数的页面
+  每个页设置一个访问技术,每次访问时+1
+  缺页时,置换计数最小的页面
+  开销大,数字太大(可以定期右移计数)
+</pre>
+    </div>
+  </div>
+</div>
+</body>
+</html>
