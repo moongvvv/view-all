@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+    <script src="../../layui-2.6.8/layui.js"></script>
+
+    <script src="../../highlight/highlight.min.js"></script>
+    <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>InnoDB</legend>
+</fieldset>
+<div class="layui-collapse">
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">多线程架构</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+多线程
+主线程：主要工作就是把内存中的数据写到磁盘里面
+IO线程：innodb_read_io_threads,innodb_write_io_threads,innodb_purge_threads
+  负责读写，事务;
+  默认=4,需要在配置文件中修改
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">内存（缓冲区）</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+    索引和数据：innodb_buffer_pool_size设置
+    redo日志的缓冲：InnoDB层面，记录页的更新（脏页），用作宕机恢复。因为不能每次一有更新脏页就写磁盘，那样效率太低，所以记录起来，统一写。
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">两次写</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+    为了保证redo日志写入磁盘时的完整性。先在磁盘上写一份副本，然后再写到redo日志
+    这样数据恢复时，如果发现redo日志有损坏，可以从副本恢复
+    <img src="https://gitee.com/mgtl/xgzz/raw/master/database/img/%E4%B8%A4%E6%AC%A1%E5%86%99.png">
+</pre>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

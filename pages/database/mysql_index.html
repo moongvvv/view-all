@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+    <script src="../../layui-2.6.8/layui.js"></script>
+
+    <script src="../../highlight/highlight.min.js"></script>
+    <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>索引</legend>
+</fieldset>
+<div class="layui-collapse">
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">B+树</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+M阶，每个非叶节点最多M个。
+通过双向链表所有叶节点都连接起来。
+
+B树和B+树的比较
+- 索引：B树无重复索引，B+树子节点的开头都是父节点（有重复）。
+- 数据存放：B树data和索引放一起（查到即可返回），B+树放在叶节点（要一直查到叶节点）。
+- B+树有链表，可以范围查询。
+
+为什么用B+树作索引
+不用红黑树：因为文件很大，要存在磁盘上，所以要用多路平衡树，降低树的高度。
+不用B树：B+树节点不放数据，可以存放更多索引。B+树有链表，可以范围查找。
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">联合索引</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+（a，b，c）数据先按a列排，再按b列排，再按c列。
+这样相当于建立了3个索引，（a),(a,b),(a,b,c)，顺序不能乱，必须从第一列开始。
+比如 where a=1 order by b，使用的是联合索引，因为根据a找到数据后，不用再排序b，取出来的数据本身就是排好的。
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">索引覆盖（避免了回表）</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+一般来说根据非聚集索引查询时找到key - primaryKey，还要再去聚集索引查数据。
+但如果非聚集索引中已经有需要的返回值，那就不用再去查了。
+例如：索引（name，age），select name,age from user where name=''
+例如：索引（name，buy_time), select count(*) from user where but_time > ''，原本查询是不用使用联合索引的，但是因为只是统计一下数据，优化器认为可以选择使用联合索引（不包含整行数据，所以小）更快。
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">全文索引（倒排索引）</h2>
+        <div class="layui-colla-content">
+<pre>
+建立key关键字 ，value位置的索引。
+需要一张辅助表，里面放着各种单词，这样才能对内容进行分词（key）。
+Mysql5.7版本后内置了ngram插件，可以支持中文。
+<code># 设置分词大小,静态参数要去配置文件设置
+ngram_token_size=2
+
+# 创建全文索引，一定要指定解释器WITH PARSER ngram
+alter table uu add fulltext index full_idx_xxx(列,列...) with parser ngram;
+
+# 查看分词情况
+SET GLOBAL innodb_ft_aux_table='tt/uu';
+# information_schema.INNODB_FT_INDEX表中可以看到分词情况
+
+# 全文检索的查询，match() against()
+# 自然查询，默认的查询方式，IN NATURAL LANGUAGE MODE可以省略。
+MATCH(content) against ('式，比如' IN NATURAL LANGUAGE MODE);
+# 还可以返回相关度
+SELECT * ,MATCH(content) against ('搜索') as 相关度 from uu
+# Boolean查询，具体配置看官方手册https://dev.mysql.com/doc/refman/8.0/en/fulltext-boolean.html
+# +表示一定要有，-表示一定没有
+# (no operator) 出现了就增加相关性，～减少相关性（很奇怪～要用中文符号才有效）
+SELECT * ,MATCH(content) against ('+这个 ' in Boolean MODE)from uu ;
+# Query Expansion,查两次。第一次根据关键词查，第二次在第一次结果的基础上扩展关键词去查。
+# 例如查database，第一次查出来的文档里面包含Mysql关键字，第二次查把这个关键字也加进去
+SELECT * ,MATCH(content) against ('sdf' WITH QUERY Expansion)from uu ;</code>
+</pre>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

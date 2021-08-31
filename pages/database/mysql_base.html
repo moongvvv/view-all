@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+    <script src="../../layui-2.6.8/layui.js"></script>
+
+    <script src="../../highlight/highlight.min.js"></script>
+    <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>Mysql基本概念</legend>
+</fieldset>
+<div class="layui-collapse">
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">数据库基础</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+    数据库四个特性（ACID）：原子性，一致性，隔离性，持久性
+
+    并发下的事务问题：
+    脏读，线程A读到了线程B没提交的数据
+    不可重复读（侧重于修改），线程A读两次值不一样，因为中间被人修改过
+    幻读（侧重于新增，删除），线程A读到了自己开启事务之后才出现的数据，比如A开启事务时数据是10条，B加了一条，这时候A提交的时候发现出现了一条没修改过的数据。
+    丢失更新，两个线程同时修改记录，结果被最后一个修改的线程覆盖。（使用串行化事务执行解决）
+
+    事务隔离级别：
+    <table class="layui-table">
+      <thead>
+        <tr>
+          <th>事务隔离级别</th>
+          <th>脏读</th>
+          <th>不可重复读</th>
+          <th>幻读</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr> <td>read-uncommitted</td> <td>×</td> <td>×</td> <td>×</td></tr>
+        <tr> <td>read-committed</td> <td>√</td> <td>×</td> <td>×</td></tr>
+        <tr> <td>repeatable-read（默认）</td> <td>√</td> <td>√</td> <td>×</td></tr>
+        <tr> <td>serializable</td> <td>√</td> <td>√</td> <td>√</td></tr>
+      </tbody>
+    </table>
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">Mysql架构</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+管理服务和组件（备份，恢复等），sql接口（接收sql命令并返回结果），解析器（解释sql），优化器（优化sql查询），缓存（查询缓存）
+存储引擎（InnoDB，MyISAM等）
+文件系统
+    <img src="https://gitee.com/mgtl/xgzz/raw/master/database/img/Mysql%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png">
+    
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">InnoDB MyISAM的对比</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+InnoDB（默认）：
+  面向OLTP
+  特征：<span style="color: red"> 事务，行锁，外键，聚集索引</span>，自适应hash索引（InnoDB控制生成，无法干涉），全文索引（Mysql5.6以后），MVCC高并发，四种数据库隔离级别（默认repeatable），使用next-key-locking避免幻读，插入缓存，二次写，预读。
+  存储时按主键顺序存放，没有主键会自动一个rowid作为主键
+MyISAM：
+  面向OLAP
+  特征：不支持事务，表锁，全文索引，由MYD（放数据）和MYI（放索引）组成，可压缩数据，只缓存索引不缓存数据
+</pre>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

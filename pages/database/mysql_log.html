@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+    <script src="../../layui-2.6.8/layui.js"></script>
+
+    <script src="../../highlight/highlight.min.js"></script>
+    <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>日志</legend>
+</fieldset>
+<div class="layui-collapse">
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">Mysql的多种日志文件</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+错误日志
+
+查询日志
+<code># 开启
+general_log=ON
+# 也可以输出到mysql.general_log表
+set GLOBAL log_output=TABLE
+</code>
+
+慢查询日志
+<code># 开启慢查询
+slow_query_log=ON
+# 设置阈值，超过会记录日志
+long_query_time=10
+# 未使用索引也记录日志
+log_queries_not_using_indexes=ON
+# 防止没命中索引的查询日志过大，设置每分钟记录次数
+log_throttle_queries_not_using_indexes=1
+# 设置日志输出方式，可以选择FILE到文件，或者TABLE到mysql.slow_log表
+set GLOBAL log_output=FILE</code>
+
+二进制日志bin_log
+记录修改操作，主要用于恢复和复制
+log_bin=日志名
+server_id=1(集群机器ID，5.7以下的不用设置)
+binlog_cache_size事务没提交之前，会分配一个日志缓存用作记录变化
+sync_binlog（5.6默认0   5.7默认1）
+- 0表示由操作系统控制刷到磁盘
+- 1表示同步写，提交事务前就先刷到磁盘，如果要高一致性（避免刷完磁盘事务没提交宕机）
+  - innodb_flush_log_at_trx_commit=1（redo日志事务提交就刷到磁盘）
+  - innodb_support_xa=ON（默认启用，8.0版本后直接移除了，不让修改）
+- N表示收到N次日志提交后就刷到磁盘
+binlog_format
+- STATEMENT基于语句
+- ROW基于行的更改（这种情况下设置隔离级别为提交读可获得更好的并发性）
+- MIXED混合
+
+redo日志保证持久性
+innodb_flush_log_at_trx_commit=1
+- 0表示每秒一次写入日志和刷新磁盘。
+- 1默认，表示每次事务提交都会写入日志并刷新磁盘。
+- 2表示事务提交就写入日志，但每秒刷新一次磁盘
+
+undo日志（逻辑式事务回滚和MVCC）
+- 逻辑回滚：和事务执行反着来，例如事务执行了insert，回滚就执行delete
+- 为什么用逻辑回滚？因为并发修改的时候，如果回滚了物理页，就会把其他人数据修改也回滚。
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">redo和binlog的区别</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+redo由innodb引擎层产生，binlog由server层
+redo记录的是物理页的变动，binlog记录逻辑日志
+redo是事务执行时实时写入（不连续），binlog提交事务时才写入
+redo日志是循环写（类似循环队列，因为空间有限），binlog是追加写
+</pre>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

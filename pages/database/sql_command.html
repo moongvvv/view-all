@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+    <script src="../../layui-2.6.8/layui.js"></script>
+
+    <script src="../../highlight/highlight.min.js"></script>
+    <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>SQL</legend>
+</fieldset>
+<div class="layui-collapse">
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">SQL语句</h2>
+        <div class="layui-colla-content layui-show">
+            <pre>
+<code># 唯一查询DISTINCT, 注意DISTINCT会作用于后续所有字段
+SELECT DISTINCT u.name FROM `user` u;
+
+# 限制返回数目LIMIT,用OFFSET设置从哪里开始,两种写法
+SELECT u.name,u.age FROM `user` u limit 5 OFFSET 3;# 第3条之后的5行记录
+SELECT u.name,u.age FROM `user` u limit 3,5;# 第3条之后的5行记录
+
+# 排序ORDER BY,可指定多列,指定每列排序方向,DESC倒序
+SELECT u_name, u_age FROM `user` ORDER BY u_name DESC,u_age;
+
+# WHERE条件查询,[=,<>,<,>,<=,>=,BETWEEN...AND...,IS NULL]
+# () : 多个条件查询时,把优先执行的括起来
+# IN('','',...) : 指定条件范围,IN比OR更快,且可以内含查询
+# NOT : 用于否定后面跟的条件,一般和IN,BETWEEN,EXISTS连用,NOT IN
+# LIKE通配符 : %匹配多个,_匹配单个;尽量不要把通配符放在开头
+
+# 拼接字段CONCAT(str1,str2...),如果有NULL值,就会返回NULL(用IFNULL解决)
+SELECT CONCAT("姓名:",u_name,",年龄:",u_age) FROM `user`
+SELECT CONCAT("姓名:",u_name,",年龄:",IFNULL(u_age,'')) FROM `user`
+# 去除左右两边的空格,TRIM(u_name)
+SELECT TRIM(u_name) FROM `user`;
+
+# 聚集函数 AVG,COUNT,MIN,MAX,SUM
+# AVG会忽略NULL,只能作用于单列
+SELECT AVG(u_price) FROM user WHERE u_name = 'a';
+# COUNT(*)对结果集计数不论是否NULL,count(列)对结果集中该列有值进行计数
+SELECT COUNT(*) FROM user
+SELECT COUNT(u_age) FROM user;
+# MAX,MIN,SUM 作用于列,忽略NULL,函数内可使用计算表达式
+SELECT MAX(u_age+u_quantily) FROM user
+# DISTINCT与聚集函数
+SELECT COUNT(DISTINCT u_name,u_age) FROM user;
+
+# 分组GROUP BY,过滤 HAVING
+SELECT COUNT(*),u_name FROM `user` GROUP BY u_name HAVING max(u_price) > 7
+
+# SELECT子句顺序
+SELECT
+FROM
+WHERE
+GROUP BY
+HAVING
+ORDER BY
+
+# UNION 合并两个查询,会自动去重
+# UNION ALL 不去重
+</code>
+            </pre>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
