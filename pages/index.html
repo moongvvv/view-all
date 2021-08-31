@@ -23,7 +23,7 @@
         <div class="layui-side layui-bg-black">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree">
-                <li class="layui-nav-item layui-nav-itemed ">
+                <li class="layui-nav-item">
                     <a>操作系统</a>
                     <dl class="layui-nav-child">
                         <dd><a onclick="turn('./operating-system/process_thread.html')">进程与线程</a></dd>
@@ -32,6 +32,24 @@
                         <dd><a onclick="turn('./operating-system/process_synchronization.html')">进程同步</a></dd>
                         <dd><a onclick="turn('./operating-system/thread_deadlock.html')">死锁</a></dd>
                         <dd><a onclick="turn('./operating-system/memory.html')">内存分配与管理</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a>Linux命令</a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick="turn('./linux-command/linux_command.html')">Linux常用命令</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a>数据结构</a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick="turn('./data-structure/list.html')">List</a></dd>
+                        <dd><a onclick="turn('./data-structure/queue.html')">队列</a></dd>
+                        <dd><a onclick="turn('./data-structure/stack.html')">栈</a></dd>
+                        <dd><a onclick="turn('./data-structure/hashmap.html')">HashMap</a></dd>
+                        <dd><a onclick="turn('./data-structure/tree.html')">树，AVL，树的遍历</a></dd>
+                        <dd><a onclick="turn('./data-structure/heap.html')">堆</a></dd>
+                        <dd><a onclick="turn('./data-structure/sort.html')">排序算法</a></dd>
                     </dl>
                 </li>
             </ul>
