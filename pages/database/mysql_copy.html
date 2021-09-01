@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+    <script src="../../layui-2.6.8/layui.js"></script>
+
+    <script src="../../highlight/highlight.min.js"></script>
+    <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+    <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>复制</legend>
+</fieldset>
+<div class="layui-collapse">
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">Docker启动Mysql</h2>
+        <div class="layui-colla-content">
+            <pre>
+<code># 跟随系统时间,指定data,my.cnf目录
+docker run -itd --restart=always -v /etc/localtime:/etc/localtime -v /home/命名/data/:/var/lib/mysql -v /home/命名/:/etc/mysql --name 命名 -p 端口号:3306 -e MYSQL_ROOT_PASSWORD=密码 mysql:5.7
+</code>
+            </pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">my.cnf基本配置</h2>
+        <div class="layui-colla-content">
+            <pre>
+<code>[mysqld]
+# 只读模式，root权限依旧可改
+# read_only=ON
+
+# 错误日志filename
+log_error=
+# 获取锁超时时间
+innodb_lock_wait_timeout=10
+# 忽略大小写
+lower_case_table_names=1
+# 集群ID，不可重复
+server_id=1
+# 开启binlog
+log_bin=filename
+</code>
+            </pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">主从复制配置，双主，多源</h2>
+        <div class="layui-colla-content">
+<pre>
+单一主从复制配置
+<code># 主库创建一个有复制权限的用户replica
+CREATE USER 'replica'@'%' IDENTIFIED BY 'gzz2021';
+GRANT REPLICATION SLAVE ON *.* TO 'replica'@'%';
+Flush privileges;
+
+# 查看主库的状态，File和Position
+SHOW MASTER STATUS;
+
+# 从库设置复制
+STOP SLAVE;# 停止复制
+CHANGE MASTER TO
+MASTER_HOST='192.168.226.128',
+MASTER_PORT=3306,
+MASTER_USER='replica',
+MASTER_PASSWORD='gzz2021',
+MASTER_LOG_FILE='main.000001',
+MASTER_LOG_POS=154;
+START SLAVE;#启动复制
+SHOW SLAVE STATUS;#查看从库复制状态
+</code>
+双主复制，即把上述操作反过来执行一次
+多源复制
+my.cnf增加配置
+<code>[mysqld]
+......
+# 设置
+master_info_repository='TABLE'
+relay_log_info_repository='TABLE'
+
+# 建议用这种方式指定复制哪些表
+replicate-do-table=tt.t_user
+</code>
+配置复制，操作基本一致
+<code class="language-sql">STOP SLAVE;
+# ......几个源就设置几次
+CHANGE MASTER TO 
+MASTER_HOST="192.168.226.128", 
+MASTER_PORT=3306,
+MASTER_USER="replica", 
+MASTER_PASSWORD="gzz2021", 
+MASTER_LOG_FILE='main.000001', 
+MASTER_LOG_POS=1014
+FOR CHANNEL "source_1";# 特殊点：命名这个源
+START SLAVE;
+SHOW SLAVE STATUS;
+</code>
+</pre>
+        </div>
+    </div>
+
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">复制的原理</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+1. 主库生成binlog。
+2. 从库有一个IO线程负责从主库读取binlog并记录relaylog。
+3. 从库有一个SQL线程（<span style="color: red">可设置多线程并行</span>）负责读取relaylog完成复制。
+<img src="https://gitee.com/mgtl/xgzz/raw/master/database/img/Mysql%E5%A4%8D%E5%88%B6%E7%9A%84%E5%8E%9F%E7%90%86.png" />
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">复制的四种方式</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+异步：主库写入binlog后即可返回事务，无需等待从库是否复制成功，主库宕机从库可能没读完binlog导致从库数据丢失。
+<img src="https://gitee.com/mgtl/xgzz/raw/master/database/img/%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6.png" />
+半同步：主库写入binlog后就会同步给从库并一直等待响应，从库记录到relaylog后发送ack确认。<span style="color: red; ">主库至少收到一个ack才能返回事务，否则超时会退化成异步复制</span>。
+<img src="https://gitee.com/mgtl/xgzz/raw/master/database/img/%E5%8D%8A%E5%90%8C%E6%AD%A5%E5%A4%8D%E5%88%B6.png" />
+全同步复制：等待所有从库返回ack。
+并行复制：从库可开启多个SQL线程并行读取relaylog，5.6版本的并行是基于schema的即单库，5.7版本升级到基于组，实现真正的并行。设置slave_parallel_workers
+<img src="https://gitee.com/mgtl/xgzz/raw/master/database/img/%E7%BB%84%E5%A4%8D%E5%88%B6.png">
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">复制的两个问题</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+<span style="color: red; ">如何保证可靠性（数据一致性）</span>
+1. Mysql参数，每次事务提交就写进日志并刷新磁盘。
+   sync_binlog=1；innodb_flush_log_at_trx_commit=1
+2. 开启半同步复制。
+
+<span style="color: red; ">复制延迟问题</span>:通过查看slave状态，Seconds_Behind_Master字段。
+开启并行复制。
+</pre>
+        </div>
+    </div>
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">开启半同步复制</h2>
+        <div class="layui-colla-content">
+<pre>
+<code class="language-sql"># 安装插件
+INSTALL PLUGIN rpl_semi_sync_master SONAME 'semisync_master.so';# 主库
+INSTALL PLUGIN rpl_semi_sync_slave SONAME 'semisync_slave.so';# 从库
+
+# 配置文件
+# 主库
+plugin-load="rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"
+rpl_semi_sync_master_enabled=1
+rpl_semi_sync_master_timeout=1000 # 1 second
+# 从库
+plugin-load="rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"
+rpl_semi_sync_slave_enabled=1
+</code>
+</pre>
+        </div>
+    </div>
+
+
+    <div class="layui-colla-item">
+        <h2 class="layui-colla-title">并行复制（组复制）的paxos算法保证一致性</h2>
+        <div class="layui-colla-content layui-show">
+<pre>
+paxos算法（分布式一致性）
+三种角色
+- 提议者：发消息
+- 接受者：接收消息
+- 学习者：复制
+算法过程（获取大多数人同意）
+- prepare阶段
+1. 所有提议者都发送自己的序号num给接受者（即prepare请求，可能时间有先后）。
+2. 接受者收到prepare分情况讨论（返回promise）：
+   1）num比记录的值小，reject；
+   1）num更大&&没收到过提案，那就更新num并返回promise。
+   2）num更大&&收到过提案，那就更新num并返回（promise+旧提案+旧num）。
+- accept阶段
+1. 提议者陆续接收到接受者的消息（promise OR reject）
+   1）只收到promise，那就可以发送自己的提案。
+   2）收到（promise+旧提案+旧num），那就修改自己提案为旧提案（尽快形成大多数同意）并发送。
+   3）又收到（promise+旧提案+旧num），那就要看num哪个大，更新提案为大的那个并发送。
+2. 最终获得大多数accept的提案获得通过。
+</pre>
+        </div>
+    </div>
+</div>
+</body>
+</html>

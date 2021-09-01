@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="../../layui-2.6.8/css/layui.css">
+  <script src="../../layui-2.6.8/layui.js"></script>
+
+  <script src="../../highlight/highlight.min.js"></script>
+  <link rel="stylesheet" href="../../highlight/styles/base16/atelier-cave.min.css">
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+  <legend>高可用Mysql</legend>
+</fieldset>
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">读写分离与分库分表</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+读写分离带来的问题：复制延迟导致数据不一致
+分库：引入了分布式事务
+分表：如何分片，分页排序等查询问题，分布式主键ID，伸缩性（节点扩展和收缩时都要迁移数据）
+</pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">ShardingSphere-JDBC如何解决上述问题</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+读写分离：同一线程且同一数据库连接内，如有写入操作，以后的读操作均从主库读取，用于保证数据一致性；
+分布式事务：支持XA事务，支持Seata的TCC事务
+查询问题： 用多路归并的外部排序算法
+分片算法：由用户自定义实现（可用一致性hash算法）
+分布式主键ID：雪花算法，UUID
+</pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">Mycat如何解决上述问题</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+读写分离：开启事务后所有操作均发到主库，多种负载均衡方式
+分布式事务：支持XA事务
+查询问题： （劣势）会查询所有分片，然后归并排序，内存占用大
+分片算法：自带多种分片算法（取模，一致性hash等）
+分布式主键ID：雪花算法，UUID，mysql全局序号表
+支持主备切换
+</pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">雪花算法</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+工作进程位（10bit）:该标志在 Java 进程内是唯一的，如果是分布式应用部署应保证每个工作进程的 id 是不同的。该值默认为 0，可通过属性设置。
+序列号位（12bit）:该序列是用来在同一个毫秒内生成不同的 ID。如果在这个毫秒内生成的数量超过 4096 (2 的 12 次幂)，那么生成器会等待到下个毫秒继续生成。
+<img src="https://gitee.com/mgtl/xgzz/raw/master/database/img/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95.png">
+</pre>
+    </div>
+  </div>
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">一致性hash</h2>
+    <div class="layui-colla-content layui-show">
+<pre>
+一致性hash算法（分布式存储解决方案）
+普通hash取模算法，虽然分布均匀，一旦节点数量变化就要重新迁移数据（扩展，宕机等）。
+- 一致性hash算法过程：
+  1. 求出节点的hash值，将其分散在一个0 ~ 2^32^的圆环上面。
+  2. 同样求出存储数据的key的hash值，投射到圆环上面。
+  3. 从数据投射的位置，顺时针查找节点，找到的第一个节点就是要存储的服务器节点。
+- 优化：虚拟节点
+  1. 分布更加均匀：通过node+编号计算出多个虚拟节点，这样环上的节点分布就更加均匀。
+  2. 防止雪崩：如果都是实节点，如果一台雪崩，后续的访问会按顺时针传给第二台，导致一连串雪崩。用虚节点就没有这个问题，因为虚节点都是随机分布的。
+</pre>
+    </div>
+  </div>
+
+
+</div>
+</body>
+</html>
